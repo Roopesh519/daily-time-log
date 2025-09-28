@@ -25,7 +25,7 @@ async function connectDB() {
       connectTimeoutMS: 30000,
       maxPoolSize: 10,
       retryWrites: true,
-      w: 'majority',
+      w: 'majority' as const,
       family: 4, // Force IPv4
       heartbeatFrequencyMS: 10000,
       retryReads: true,

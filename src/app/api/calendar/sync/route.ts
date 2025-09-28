@@ -143,11 +143,11 @@ export async function POST(request: NextRequest) {
     }
 
     // Remove existing calendar entries and add new ones
-    log.entries = log.entries.filter(entry => entry.type !== 'calendar');
+    log.entries = log.entries.filter((entry: any) => entry.type !== 'calendar');
     log.entries.push(...calendarEntries);
 
     // Sort all entries by start time to maintain chronological order
-    log.entries.sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime());
+    log.entries.sort((a: any, b: any) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime());
 
     await log.save();
 

@@ -18,11 +18,10 @@ async function connectDB() {
   }
 
   if (!cached.promise) {
-    // Simple MongoDB Atlas connection options
+    // Minimal MongoDB Atlas connection options
     const opts = {
       bufferCommands: false,
       serverSelectionTimeoutMS: 30000,
-      socketTimeoutMS: 60000,
       connectTimeoutMS: 30000,
       maxPoolSize: 10,
       retryWrites: true,
@@ -30,7 +29,6 @@ async function connectDB() {
       family: 4, // Force IPv4
       heartbeatFrequencyMS: 10000,
       retryReads: true,
-      compressors: ['zlib'],
     };
 
     cached.promise = mongoose.connect(MONGODB_URI!, opts).then((mongoose) => {
@@ -38,6 +36,13 @@ async function connectDB() {
       return mongoose;
     }).catch((error) => {
       console.error('MongoDB connection error:', error);
+      console.error('Error details:', {
+        name: error.name,
+        message: error.message,
+        code: error.code,
+        codeName: error.codeName
+      });
+      
       // Clear the promise on error so it can be retried
       cached.promise = null;
       throw error;

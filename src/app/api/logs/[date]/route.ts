@@ -6,7 +6,7 @@ import Log from '@/lib/models/Log';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { date: string } }
+  { params }: { params: Promise<{ date: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -15,14 +15,15 @@ export async function GET(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    const { date } = await params;
     await connectDB();
 
     const log = await Log.findOne({ 
       userId: session.user.id, 
-      date: params.date 
+      date: date 
     });
 
-    return NextResponse.json(log || { date: params.date, entries: [] });
+    return NextResponse.json(log || { date: date, entries: [] });
   } catch (error) {
     console.error('Error fetching log:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
@@ -31,7 +32,7 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { date: string } }
+  { params }: { params: Promise<{ date: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -40,20 +41,26 @@ export async function PUT(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    const { date } = await params;
     const { entries } = await request.json();
 
     if (!entries) {
       return NextResponse.json({ error: 'Entries are required' }, { status: 400 });
     }
 
+    // Sort entries by start time to maintain chronological order
+    const sortedEntries = entries.sort((a: any, b: any) => 
+      new Date(a.startTime).getTime() - new Date(b.startTime).getTime()
+    );
+
     await connectDB();
 
     const log = await Log.findOneAndUpdate(
-      { userId: session.user.id, date: params.date },
+      { userId: session.user.id, date: date },
       { 
         userId: session.user.id,
-        date: params.date,
-        entries,
+        date: date,
+        entries: sortedEntries,
         $setOnInsert: { createdAt: new Date() }
       },
       { upsert: true, new: true }
@@ -68,7 +75,7 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { date: string } }
+  { params }: { params: Promise<{ date: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -77,11 +84,12 @@ export async function DELETE(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    const { date } = await params;
     await connectDB();
 
     await Log.findOneAndDelete({ 
       userId: session.user.id, 
-      date: params.date 
+      date: date 
     });
 
     return NextResponse.json({ message: 'Log deleted successfully' });

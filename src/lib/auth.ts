@@ -18,6 +18,8 @@ export const authOptions: NextAuthOptions = {
       authorization: {
         params: {
           scope: 'openid email profile https://www.googleapis.com/auth/calendar.readonly',
+          access_type: 'offline',
+          prompt: 'consent',
         },
       },
     }),
@@ -70,9 +72,33 @@ export const authOptions: NextAuthOptions = {
       
       // Store Google tokens for calendar access
       if (account?.provider === 'google' && account.access_token) {
+        console.log('Google OAuth tokens received:', {
+          accessToken: account.access_token ? 'Present' : 'Missing',
+          refreshToken: account.refresh_token ? 'Present' : 'Missing',
+          expiresAt: account.expires_at,
+          userId: user.id,
+          tokenType: account.token_type,
+          scope: account.scope
+        });
+        
         token.googleAccessToken = account.access_token;
         token.googleRefreshToken = account.refresh_token;
         token.googleExpiryDate = account.expires_at;
+        
+        // Store tokens in User model for calendar sync
+        try {
+          await connectDB();
+          const updateResult = await User.findByIdAndUpdate(user.id, {
+            googleAuthTokens: {
+              accessToken: account.access_token,
+              refreshToken: account.refresh_token,
+              expiryDate: account.expires_at,
+            },
+          });
+          console.log('Tokens stored in User model:', updateResult ? 'Success' : 'Failed');
+        } catch (error) {
+          console.error('Error storing Google tokens:', error);
+        }
       }
       
       return token;

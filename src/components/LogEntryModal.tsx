@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { X, Clock, Calendar, FileText, Type } from 'lucide-react';
+import { X, Clock, Calendar, FileText, Type, Save, XCircle } from 'lucide-react';
 import { LogEntry } from '@/types';
 import { format, parseISO } from 'date-fns';
 
@@ -91,6 +91,7 @@ export default function LogEntryModal({ isOpen, onClose, onSave, date, entry }: 
         // Add new entry
         const newEntry: LogEntry = {
           ...data,
+          description: data.description || '',
           type: 'manual',
         };
         updatedEntries = [...entries, newEntry];
@@ -236,15 +237,17 @@ export default function LogEntryModal({ isOpen, onClose, onSave, date, entry }: 
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full inline-flex justify-center items-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm disabled:opacity-50 disabled:cursor-not-allowed"
               >
+                <Save className="h-4 w-4 mr-2" />
                 {isLoading ? 'Saving...' : (entry ? 'Update Entry' : 'Add Entry')}
               </button>
               <button
                 type="button"
                 onClick={onClose}
-                className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
+                className="mt-3 w-full inline-flex justify-center items-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
               >
+                <XCircle className="h-4 w-4 mr-2" />
                 Cancel
               </button>
             </div>

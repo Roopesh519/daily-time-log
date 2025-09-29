@@ -8,6 +8,9 @@ const inter = Inter({ subsets: ['latin'] });
 export const metadata: Metadata = {
   title: 'Daily Time Log',
   description: 'Track your daily activities and sync with Google Calendar',
+  icons: {
+    icon: '/logo.png',
+  }
 };
 
 export default function RootLayout({
